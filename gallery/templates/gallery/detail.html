@@ -1,0 +1,113 @@
+{% extends 'photography/base.html' %}
+
+{% block title %}{{ photo.name }}{% endblock %}
+
+{% block content %}
+<style>
+    .photo {
+        width: auto; /* Fixed container width */
+        height: 100%; /* Fixed container height */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden; /* Ensures anything outside the container is cropped */
+        border-radius: 8px; /* Keeps the rounded corners */
+        position: relative; /* Retains relative positioning for child elements */
+        transition: transform 0.3s ease; /* Smooth scaling effect */
+    }
+
+    .photo img {
+        width: 100%; /* Match the width of the container */
+        height: 100%; /* Match the height of the container */
+        object-fit: cover; /* Crop and scale the image to fill the container */
+        border-radius: inherit; /* Inherits rounded corners from the container */
+    }
+
+    .photo:hover {
+        transform: scale(1.05); /* Hover scaling effect */
+    }
+
+    .gallery-image {
+        max-width: 100%;
+        max-height: 500px;
+        object-fit: contain; /* Ensure the image fits within the modal */
+    }
+
+    .photo-gallery {
+        padding: 20px;
+    }
+
+    #modalImage {
+        max-width: 90vw; /* Restrict width to viewport width */
+        max-height: 90vh; /* Restrict height to viewport height */
+        object-fit: contain; /* Maintain aspect ratio and fit within modal dimensions */
+    }
+</style>
+
+<!-- Main Image -->
+<div class="grid grid-cols-span-3 gap-4">
+    <div class="col-span-4 flex items-center justify-center relative overflow-hidden">
+        <!-- Gallery Image -->
+        <div class="group relative">
+            <img id="gallery-image" src="{{ gallery.image.url }}" class="gallery-image rounded-xl transition-transform transform-gpu group-hover:scale-105 cursor-pointer" onclick="openModal('{{ gallery.image.url }}')">
+        </div>
+    </div>
+</div>
+
+<!-- Related Photos Section -->
+<div class="mt-6 px-7 py-5 bg-gray-300 rounded-xl">
+    <h2 class="mb-3 text-2xl text-center font-semibold italic">Related Photos</h2>
+
+    <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-3 gap-4">
+        {% for photo in related_photos %}
+            <div> 
+                <a href="{% url 'gallery:detail' photo.id %}">
+                    <div class="photo">
+                        <img src="{{ photo.image.url }}" alt="Photo" class="cursor-pointer">
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="photoModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+    <div class="relative bg-white rounded-lg overflow-hidden shadow-lg">
+        <button class="absolute top-0 right-0 p-5 text-white bg-gray-700 rounded-full hover:bg-gray-900 bg-opacity-50" onclick="closeModal()">
+            &times;
+        </button>
+        <img id="modalImage" src="" alt="Photo">
+    </div>
+</div>
+
+<script>
+    function openModal(imageSrc) {
+        const modal = document.getElementById('photoModal');
+        const modalImage = document.getElementById('modalImage');
+        modalImage.src = imageSrc;
+
+        // Dynamically adjust image size for proper display
+        const img = new Image();
+        img.src = imageSrc;
+        img.onload = () => {
+            if (img.width > img.height) {
+                // Landscape image
+                modalImage.style.width = '90vw';
+                modalImage.style.height = 'auto';
+            } else {
+                // Portrait image
+                modalImage.style.width = 'auto';
+                modalImage.style.height = '90vh';
+            }
+        };
+
+        modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('photoModal');
+        modal.classList.add('hidden');
+    }
+</script>
+{% endblock %}

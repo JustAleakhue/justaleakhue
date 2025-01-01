@@ -1,0 +1,24 @@
+
+{% extends 'photography/base.html' %}
+
+{% block title %}{{ gallery.name }}{% endblock %}
+
+{% block content %}
+<div class="photo-gallery">
+    <h1>{{ gallery.name }}</h1>
+    
+    <div class="photos">
+        </div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-3 gap-3">
+            {% for photo in photos %}
+                <div class="photo">
+                    <img src="{{ photo.image_url }}" alt="{{ photo.name }}" class="col-span-3">
+                    <p>{{ photo.caption }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Link to the Main Gallery -->
+    <a href="{% url 'main_gallery_view_name' %}">View All Photos</a>
+</div>
+{% endblock %}

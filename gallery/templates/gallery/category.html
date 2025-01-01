@@ -1,0 +1,96 @@
+{% extends 'photography/base.html' %}
+
+{% block title %}Category: {{ category.name }}{% endblock %}
+
+{% block content %}
+<style>
+    .photo {
+        width: auto; /* Allow flexible width */
+        height: auto; /* Allow flexible height */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden; /* Crop any overflowing content */
+        border-radius: 8px; /* Rounded corners */
+        position: relative; /* Positioning for child elements */
+        transition: transform 0.3s ease; /* Smooth scaling effect */
+    }
+
+    .photo:hover {
+        transform: scale(1.05); /* Zoom effect on hover */
+    }
+
+    .image-class {
+        width: 100%; /* Full width of the container */
+        height: 100%; /* Full height of the container */
+        object-fit: cover; /* Maintain aspect ratio while filling container */
+        border-radius: inherit; /* Match the container's rounded corners */
+    }
+
+    .photo-gallery {
+        padding: 20px; /* Padding around the gallery */
+    }
+
+    #modalImage {
+        max-width: 90vw; /* Fit within 90% of the viewport width */
+        max-height: 90vh; /* Fit within 90% of the viewport height */
+        object-fit: contain; /* Maintain aspect ratio while fitting in modal */
+    }
+</style>
+
+<!-- Category Name -->
+<h1 class="text-xl font italic text-center py-1 mt-1">{{ category.name }}</h1>
+
+<!-- Category Photos Grid -->
+<div class="font-bold photo-gallery bg-gray-300 rounded-md">
+    <div class="grid grid-cols-3 gap-4">
+        {% for photo in photos_in_category %}
+            <div class="photo cursor-pointer" onclick="openModal('{{ photo.image.url }}')">
+                <img src="{{ photo.image.url }}" alt="{{ photo.name }}" class="image-class">
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal for Enlarged Image -->
+<div id="photoModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+    <div class="relative bg-white rounded-lg overflow-hidden shadow-lg">
+        <button class="absolute top-0 right-0 p-5 text-white bg-gray-700 rounded-full hover:bg-gray-900 bg-opacity-50" onclick="closeModal()">
+            &times;
+        </button>
+        <img id="modalImage" src="" alt="Photo">
+    </div>
+</div>
+
+<!-- JavaScript for Modal Functionality -->
+<script>
+    function openModal(imageSrc) {
+        const modal = document.getElementById('photoModal');
+        const modalImage = document.getElementById('modalImage');
+        modalImage.src = imageSrc;
+
+        // Dynamically adjust modal image dimensions
+        const img = new Image();
+        img.src = imageSrc;
+        img.onload = () => {
+            if (img.width > img.height) {
+                // Landscape image
+                modalImage.style.width = '90vw';
+                modalImage.style.height = 'auto';
+            } else {
+                // Portrait image
+                modalImage.style.width = 'auto';
+                modalImage.style.height = '90vh';
+            }
+        };
+
+        modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('photoModal');
+        modal.classList.add('hidden');
+    }
+</script>
+
+{% endblock %}
